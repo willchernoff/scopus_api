@@ -3,6 +3,8 @@ import requests                          # Traverse the web
 
 from bs4 import BeautifulSoup            # Parse XML
 
+import re                                # Parse with Regex
+
 
 #### Function: Identify first next available key name
 # Not all content object keys added to dictionaries are unique. Update key name when key already exists in target dictionary.
@@ -265,7 +267,7 @@ def article_scrape(eid, get_citing_works, api_key):
     if get_citing_works:
                 
         # GET request URL
-        url = 'http://api.elsevier.com/content/search/scopus?query=refeid%28'+eid+'%29&count=100'
+        url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100'
 
         # Make GET request and store response
         # Request returns first 100 citing works
@@ -280,21 +282,22 @@ def article_scrape(eid, get_citing_works, api_key):
         # Mantra: All UTF-8 is unicode, not all unicode is UTF-8 
         # Omit newline characters
         soup = BeautifulSoup(resp.content.replace('\n', '').decode('utf-8','ignore'), 'lxml')
-
+       
         # Add number of citing works
-        num_citing_works = len(soup.find_all('eid'))
+        #num_citing_works = len(soup.find_all('eid'))
+        num_citing_works = soup.find_all('opensearch:totalresults')[0].contents[0]
 
         # If not citing works, then add citing works, else add None
         if num_citing_works != 0:
 
             # Add citing works ID list
             citing_works_eid_list = []
-    
+   
             # Add citing work IDs to list citing_works_eid_list
             # i i.e. ID number object
-            for i in soup.find_all('eid'):
+            for i in soup.find_all('prism:url'):
 
-                citing_works_eid_list.append(i.contents[0])
+                citing_works_eid_list.append(re.findall(r'[0-9]+', i.contents[0]))
 
             # Add citing works dictionary    
             citing_works_dict = {}
@@ -302,10 +305,10 @@ def article_scrape(eid, get_citing_works, api_key):
             # GET article data for each article ID
             # i i.e. ID number object
             for i in citing_works_eid_list:
-
+               
                 # Request article data 
                 # Do not GET citing works data for each article            
-                citing_works_dict[i] = article_scrape(eid=i, get_citing_works=False, api_key=api_key)
+                citing_works_dict['2-s2.0-'+i[0]] = article_scrape(eid='2-s2.0-'+i[0], get_citing_works=False, api_key=api_key)
 
             #else:
 
