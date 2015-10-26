@@ -46,9 +46,15 @@ for eid in eid_list:
     # Request article data 
     # GET citing works data for each article
     article = article_scrape(eid=eid, get_citing_works=True, api_key=my_api_key)    
-     
+
+    # Write article data to a JSON file
+    with io.open('citation_data_json/'+eid+'.json', 'w', encoding='utf8') as outfile:
+        f = json.dumps(article, outfile, sort_keys = True, indent = 4, ensure_ascii = False)
+        outfile.write(unicode(f))
+
+    
     # Write article data to a CSV file
-    with open('citation_data/'+eid+'.csv', 'wb+') as outfile:
+    with open('citation_data_csv/'+eid+'.csv', 'wb+') as outfile:
 
         article_csv = unicodecsv.writer(outfile, encoding='utf-8')
 
