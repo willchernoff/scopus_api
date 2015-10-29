@@ -129,12 +129,12 @@ def article_scrape(eid, get_citing_works, api_key):
 
     # Add author dicitonary
     author_dict = {}    
-
+    
     # Traverse author groups 
     # i.e. for each author group 
     # i i.e. author group object
     for i in soup_author_groups:
-    
+            
         # Traverse authors within author groups
         # i.e. for each author in an author group
         # j i.e. author object
@@ -145,49 +145,138 @@ def article_scrape(eid, get_citing_works, api_key):
             #print j.name
             #print j.contents
             #print '-'*80
-            
-            # Add author to author_dict
-            # Add author header attributes to author in author_dict
-            author_dict[j.attrs['auid']] = {'author_header' : j.attrs}
 
-            # Add author contents to author in author_dict
-            # Call traverse_contents fuction to parse author contents
-            author_dict[j.attrs['auid']].update({'author_name' : traverse_contents(j.contents, j.name)})
+            if j.attrs['auid'] in author_dict:
 
-            # Add affiliation dictionary
-            # Traverse affiliation contents
-            # k i.e. affiliation content object
-            affiliation = {}
-
-            ##print i.find('affiliation')
-            ##print '-'*80
-            
-            for k in i.find('affiliation'):
+                new_author_key = update_dict_key(j.attrs['auid'], author_dict)
                 
-                new_key = update_dict_key(k.name, affiliation)
+                #author_dict.update({new_key : k.contents[0]})
                 
-                affiliation.update({new_key : k.contents[0]})
+                # Add author to author_dict
+                # Add author header attributes to author in author_dict
+                author_dict[new_author_key] = {'author_header' : j.attrs}
 
-            ##print affiliation
-            ##print '-'*80
+                # Add author contents to author in author_dict
+                # Call traverse_contents fuction to parse author contents
+                author_dict[new_author_key].update({'author_name' : traverse_contents(j.contents, j.name)})
+
+                # Add affiliation dictionary
+                # Traverse affiliation contents
+                # k i.e. affiliation content object
+                affiliation = {}
+
+                # If affiliation object exists, then add affiliation content, else add None
+                if i.find('affiliation') is None:
+
+                    #print 'No affiliation here!'
+                    #print i
+                    #print '-'*80
+
+                    # Add None affiliation header from author group
+                    affiliation_header = {'afid' : None}
+
+                    # Add affiliation header from author group to affilation dictionary
+                    affiliation.update({'affiliation_header' : affiliation_header})
+
             
-            # Add affiliation header from author group
-            affiliation_header = i.find('affiliation').attrs
+                    # Add affiliation dictionary to author dictionary
+                    author_dict[j.attrs['auid']].update({'affiliation' : affiliation})
 
-            ##print affiliation_header
-            ##print '-'*80
+                else:
 
-            # Add affiliation header from author group to affilation dictionary
-            affiliation.update({'affiliation_header' : affiliation_header})
-
-            ##print affiliation
-            ##print '-'*80
+                    ##print i.find('affiliation')
+                    ##print '-'*80
             
-            # Add affiliation dictionary to author dictionary
-            author_dict[j.attrs['auid']].update({'affiliation' : affiliation})
+                    for k in i.find('affiliation'):
+                
+                        new_key = update_dict_key(k.name, affiliation)
+                
+                        affiliation.update({new_key : k.contents[0]})
 
-            ##print author_dict
-            ##print '-'*80
+                    ##print affiliation
+                    ##print '-'*80
+            
+                    # Add affiliation header from author group
+                    affiliation_header = i.find('affiliation').attrs
+
+                    ##print affiliation_header
+                    ##print '-'*80
+
+                    # Add affiliation header from author group to affilation dictionary
+                    affiliation.update({'affiliation_header' : affiliation_header})
+
+                    ##print affiliation
+                    ##print '-'*80
+            
+                    # Add affiliation dictionary to author dictionary
+                    author_dict[new_author_key].update({'affiliation' : affiliation})
+
+                    ##print author_dict
+                    ##print '-'*80
+                
+            else:
+            
+                # Add author to author_dict
+                # Add author header attributes to author in author_dict
+                author_dict[j.attrs['auid']] = {'author_header' : j.attrs}
+
+                # Add author contents to author in author_dict
+                # Call traverse_contents fuction to parse author contents
+                author_dict[j.attrs['auid']].update({'author_name' : traverse_contents(j.contents, j.name)})
+
+                # Add affiliation dictionary
+                # Traverse affiliation contents
+                # k i.e. affiliation content object
+                affiliation = {}
+
+                ##print i.find('affiliation')
+                ##print '-'*80
+
+                # If affiliation object exists, then add affiliation content, else add None
+                if i.find('affiliation') is None:
+
+                    #print 'No affiliation here!'
+                    #print i
+                    #print '-'*80
+
+                    # Add None affiliation header from author group
+                    affiliation_header = {'afid' : None}
+
+                    # Add affiliation header from author group to affilation dictionary
+                    affiliation.update({'affiliation_header' : affiliation_header})
+
+            
+                    # Add affiliation dictionary to author dictionary
+                    author_dict[j.attrs['auid']].update({'affiliation' : affiliation})
+
+                else:
+            
+                    for k in i.find('affiliation'):
+                
+                        new_key = update_dict_key(k.name, affiliation)
+                
+                        affiliation.update({new_key : k.contents[0]})
+
+                    ##print affiliation
+                    ##print '-'*80
+            
+                    # Add affiliation header from author group
+                    affiliation_header = i.find('affiliation').attrs
+
+                    ##print affiliation_header
+                    ##print '-'*80
+
+                    # Add affiliation header from author group to affilation dictionary
+                    affiliation.update({'affiliation_header' : affiliation_header})
+
+                    ##print affiliation
+                    ##print '-'*80
+            
+                    # Add affiliation dictionary to author dictionary
+                    author_dict[j.attrs['auid']].update({'affiliation' : affiliation})
+
+                    ##print author_dict
+                    ##print '-'*80
 
     # Extract abstract
     # If abstract content object exists, then add abstract content, else add None
