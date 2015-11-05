@@ -393,7 +393,7 @@ def article_scrape(eid, get_citing_works, api_key):
                 
         # GET request URL
         #url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100'
-        url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start=0'        
+        url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start=1'        
 
         # Make GET request and store response
         # Request returns first 100 citing works
@@ -423,13 +423,13 @@ def article_scrape(eid, get_citing_works, api_key):
 
             # Crawl citing works
             # Add number of remaining citing works
-            citing_works_start = 0
+            citing_works_start = 1
             citing_works_left = int(num_citing_works)
 
             while citing_works_left > 0:
 
                 # If citing works request is the first request, then skip request, else make a new request
-                if citing_works_start != 0:
+                if citing_works_start > 1:
 
                     # GET request URL
                     url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start='+str(citing_works_start)
@@ -460,6 +460,7 @@ def article_scrape(eid, get_citing_works, api_key):
                 for i in soup.find_all('prism:url'):
 
                     citing_works_eid_list.append(re.findall(r'[0-9]+', i.contents[0])[0])                    
+                print 'Number of citing work eids crawled: ', len(citing_works_eid_list)
                 
                 citing_works_start += 100
                 
