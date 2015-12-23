@@ -393,7 +393,7 @@ def article_scrape(eid, get_citing_works, api_key):
                 
         # GET request URL
         #url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100'
-        url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start=1'        
+        url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start=0'        
 
         # Make GET request and store response
         # Request returns first 100 citing works
@@ -414,6 +414,7 @@ def article_scrape(eid, get_citing_works, api_key):
         # Add number of citing works
         #num_citing_works = len(soup.find_all('eid'))
         num_citing_works = soup.find_all('opensearch:totalresults')[0].contents[0]
+        #print 'Citing works from soup.find_all: ', num_citing_works
         
         # If not citing works, then add citing works, else add None
         if num_citing_works != 0:
@@ -425,6 +426,9 @@ def article_scrape(eid, get_citing_works, api_key):
             # Add number of remaining citing works
             citing_works_start = 1
             citing_works_left = int(num_citing_works)
+
+            #print 'citing works start: ', citing_works_start
+            #print 'citing works left: ', citing_works_left
 
             while citing_works_left > 0:
 
@@ -457,10 +461,14 @@ def article_scrape(eid, get_citing_works, api_key):
                     
                 # Add citing work IDs to list citing_works_eid_list
                 # i i.e. ID number object
+
+                #print soup
+                
                 for i in soup.find_all('prism:url'):
 
                     citing_works_eid_list.append(re.findall(r'[0-9]+', i.contents[0])[0])                    
                 print 'Number of citing work eids crawled: ', len(citing_works_eid_list)
+                #print 'Citing work eids crawled: ', citing_works_eid_list
                 
                 citing_works_start += 100
                 
