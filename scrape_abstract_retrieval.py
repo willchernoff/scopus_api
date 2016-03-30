@@ -121,12 +121,12 @@ def article_scrape(eid, get_citing_works, api_key):
     # Mantra: All UTF-8 is unicode, not all unicode is UTF-8 
     # Omit newline characters
     soup = BeautifulSoup(resp.content.replace('\n', '').decode('utf-8','ignore'), 'lxml')    
-    
+
     # Extract author groups
     soup_author_groups = soup.find_all('author-group')    
 
     #print 'Number author groups:', len(soup_author_groups)
-
+    
     # Add author dicitonary
     author_dict = {}    
     
@@ -290,7 +290,18 @@ def article_scrape(eid, get_citing_works, api_key):
     else:
 
         soup_abstract = None
-       
+
+    # Extract source-id
+    # If source-id content object exists, then add source-id content, else add None
+
+    if soup.find('source-id'):
+
+        soup_source_id = soup.find('source-id').contents[0]
+
+    else:
+
+        soup_source_id = None
+        
     # Extract title
     # If title content object exists, then add title content, else add None
     if soup.find('titletext'):
@@ -334,6 +345,7 @@ def article_scrape(eid, get_citing_works, api_key):
         else:
 
             soup_source_title = None
+
 
         # Extract source date
         # If source date content object exists, then add source title content, else add None
@@ -510,11 +522,35 @@ def article_scrape(eid, get_citing_works, api_key):
 
         citing_works_eid_list = None
 
+
+
+
+    ## Test: get impact factor    
+    # GET request URL
+    #url = 'http://api.elsevier.com/content/abstract/eid/' + eid    
+                                               
+    # Make GET request and store response
+    #resp = requests.get(url, headers=header)    
+
+    #print 'API Response code:', resp.status_code # resp.status_code != 200 i.e. API response error i.e. check the response request worked as intended
+
+    # Parse and decode response content 
+    # Unicode to UTF-8 
+    # Ignore encoding that cannot be decoded as specified 
+    # Mantra: All UTF-8 is unicode, not all unicode is UTF-8 
+    # Omit newline characters
+    #soup = BeautifulSoup(resp.content.replace('\n', '').decode('utf-8','ignore'), 'lxml')
+
+    #print soup
+
+
+    
+
     # Add source dictionary of source objects    
     source_dict = {'source_title' : soup_source_title, 'source_date' : soup_source_date, 'source_pages' : soup_source_pages, 'source_volume_issue' : soup_source_volume_issue}
 
     # Add article dictionary of article objects, source dictionary, citing works objects, citing works dictionary
-    article = {'article_title' : soup_title, 'article_eid' : soup_eid, 'article_scopus_link' : soup_scopus_link, 'article_authors' : author_dict, 'article_abstract' : soup_abstract, 'article_source' : source_dict, 'num_citing_works' : num_citing_works, 'citing_works_eid_list' : citing_works_eid_list, 'citing_works' : citing_works_dict}
+    article = {'article_title' : soup_title, 'article_source_id' : soup_source_id, 'article_eid' : soup_eid, 'article_scopus_link' : soup_scopus_link, 'article_authors' : author_dict, 'article_abstract' : soup_abstract, 'article_source' : source_dict, 'num_citing_works' : num_citing_works, 'citing_works_eid_list' : citing_works_eid_list, 'citing_works' : citing_works_dict}
 
     #print article        
 
