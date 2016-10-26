@@ -399,7 +399,7 @@ def article_scrape(eid, get_citing_works, api_key):
 
         soup_source_pages = {'last' : None, 'first' : None}        
 
-    print soup_issn
+    #print soup_issn
         
     if soup_issn != None:
      
@@ -481,7 +481,7 @@ def article_scrape(eid, get_citing_works, api_key):
 
                 # If citing works request is the first request, then skip request, else make a new request
                 if citing_works_start > 1:
-
+                    
                     # GET request URL
                     url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=refeid('+eid+')&field=citedby-count&count=100&start='+str(citing_works_start)
 
@@ -514,6 +514,7 @@ def article_scrape(eid, get_citing_works, api_key):
                 for i in soup.find_all('prism:url'):
 
                     citing_works_eid_list.append(re.findall(r'[0-9]+', i.contents[0])[0])                    
+
                 print 'Number of citing work eids crawled: ', len(citing_works_eid_list)
                 #print 'Citing work eids crawled: ', citing_works_eid_list
                 
@@ -533,7 +534,7 @@ def article_scrape(eid, get_citing_works, api_key):
             cnt = 1
             for i in citing_works_eid_list:
 
-                ##print '2-s2.0-'+i, cnt
+                print 'cw: 2-s2.0-'+i, cnt
                 cnt += 1
                 
                 # Request article data 
